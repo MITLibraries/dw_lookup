@@ -7,8 +7,13 @@ class DWService(object):
         cfg = Config()
         dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
         self.conn = cx_Oracle.connect(cfg['ORACLE_USER'], cfg['ORACLE_PASSWORD'], dsn)
-        self.cursor = self.conn.cursor()
-        self.cursor.prepare("""
+        self.singleNameCursor = self.conn.cursor()
+        self.multipleNameCursor = self.conn.cursor()
+
+        # if the user provides a single letter string
+        # just find all names with that string
+        # eg *[name_partial]*
+        self.singleNameCursor.prepare("""
         SELECT
             FULL_NAME,
             DEPARTMENT_NAME,
@@ -25,18 +30,42 @@ class DWService(object):
             DEPARTMENT_NAME
         """)
 
+        ## if the user provides multiple words, either:
+        # last, first [optionall more]
+        # first [optionsally more] last
+        # we search for :
+        # first [optionally more]* AND last*
+        # note that we assume the user is specifying the beginning of each
+        self.multipleNameCursor.prepare("""
+        SELECT
+            FULL_NAME,
+            DEPARTMENT_NAME,
+            MIT_ID,
+            START_DATE,
+            END_DATE
+        FROM
+            library_person_lookup
+        WHERE
+            lower(FIRST_NAME) like :first_name_partial AND
+            lower(LAST_NAME) like :last_name_partial
+        ORDER BY
+            Full_NAME,
+            END_DATE DESC,
+            DEPARTMENT_NAME
+        """)
+
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self.cursor.close()
+        self.singleNameCursor.close()
+        self.multipleNameCursor.close()
         self.conn.close()
 
     def get_data(self, name_partial):
     	data = {'results': []}
-    	name_partial = '%' + name_partial.lower().strip() + '%'
-
-    	res = self.cursor.execute(None, {'name_partial': name_partial}).fetchall()
+        print name_partial
+    	res = self.executeQuery(name_partial)
 
     	for item in res:
     		data['results'].append({
@@ -48,3 +77,29 @@ class DWService(object):
     		})
 
     	return data
+
+    def executeQuery(self, name_partial):
+        name_partial = name_partial.lower().strip()
+        name_array = name_partial.split(',', 1)
+
+        if len(name_array) > 1:
+            name_hash = {
+                'first_name_partial': name_array[1] +'%',
+                'last_name_partial': name_array[0] +'%'
+            }
+
+            return self.multipleNameCursor.execute(None, name_hash).fetchall()
+
+        name_array = name_partial.rsplit(' ', 1)
+
+        if len(name_array) > 1:
+            name_hash = {
+                'first_name_partial': name_array[0] +'%',
+                'last_name_partial': name_array[1] +'%'
+            }
+
+            return self.multipleNameCursor.execute(None, name_hash).fetchall()
+
+        name_hash = {'name_partial': '%'+ name_partial +'%'}
+
+        return self.singleNameCursor.execute(None, name_hash).fetchall()

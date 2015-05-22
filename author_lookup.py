@@ -7,8 +7,8 @@ from flask.ext.cors import CORS
 from author_lookup.dw import DWService
 
 app = Flask(__name__)
-cors = CORS(app, resources=r'/author/*')
 
+cors = CORS(app, resources=r'/author/*')
 @app.route('/author/', methods=['GET'])
 def author():
     with DWService() as dw_service:
