@@ -79,13 +79,12 @@ class DWService(object):
     	return data
 
     def executeQuery(self, name_partial):
-        name_partial = name_partial.lower().strip()
         name_array = name_partial.split(',', 1)
 
         if len(name_array) > 1:
             name_hash = {
-                'first_name_partial': name_array[1] +'%',
-                'last_name_partial': name_array[0] +'%'
+                'first_name_partial': name_array[1].lower().strip() +'%',
+                'last_name_partial': name_array[0].lower().strip() +'%'
             }
 
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
@@ -94,12 +93,12 @@ class DWService(object):
 
         if len(name_array) > 1:
             name_hash = {
-                'first_name_partial': name_array[0] +'%',
-                'last_name_partial': name_array[1] +'%'
+                'first_name_partial': name_array[0].lower().strip() +'%',
+                'last_name_partial': name_array[1].lower().strip() +'%'
             }
 
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
 
-        name_hash = {'name_partial': '%'+ name_partial +'%'}
+        name_hash = {'name_partial': '%'+ name_partial.lower().strip() +'%'}
 
         return self.singleNameCursor.execute(None, name_hash).fetchall()
