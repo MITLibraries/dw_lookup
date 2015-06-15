@@ -1,3 +1,4 @@
 .DS_Store
 *.pyc
 author_lookup/config/default.yml
+env/
