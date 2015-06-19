@@ -2,11 +2,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from flask.ext.cors import CORS
 from author_lookup.dw import DWService
 
 app = Flask(__name__)
+
+
+@app.route('/demo/', methods=['GET'])
+def demo():
+    return render_template('demo.html')
 
 cors = CORS(app, resources=r'/author/*')
 @app.route('/author/', methods=['GET'])

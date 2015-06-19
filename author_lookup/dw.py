@@ -31,9 +31,9 @@ class DWService(object):
         """)
 
         ## if the user provides multiple words, either:
-        # last, first [optionall more]
-        # first [optionsally more] last
-        # we search for :
+        # last, first [optionally more]
+        # first [optionally more] last
+        # we search for:
         # first [optionally more]* AND last*
         # note that we assume the user is specifying the beginning of each
         self.multipleNameCursor.prepare("""

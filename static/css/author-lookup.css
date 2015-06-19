@@ -1,0 +1,43 @@
+.al-loading {
+    background: white url("../images/loading_16x16.gif") right center no-repeat;   
+}
+
+#author-lookup-results {
+    border-spacing: 0;
+    border: 2px solid black;
+    max-height: 300px;
+    overflow: auto;
+}
+
+#author-lookup-results table {
+    width: 100%;
+}
+
+#author-lookup-results thead tr th { 
+    height: 30px;
+    line-height: 30px;
+}
+
+#author-lookup-results thead tr th.end_date { 
+    width: 90px;
+}
+
+#author-lookup-results thead {
+    border-bottom: 2px solid black;
+}
+
+#author-lookup-tbody td, thead th {
+    border-right: 1px solid black;
+}
+
+#author-lookup-tbody td:last-child, thead th:last-child {
+    border-right: none;
+}
+
+#author-lookup-tbody tr:nth-child(odd) {
+    background-color: #EEEEEE;
+}
+
+#author-lookup-tbody tr:hover {
+    background-color: #CCCCCC;
+}
