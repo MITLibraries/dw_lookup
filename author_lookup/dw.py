@@ -8,9 +8,10 @@ class DWService(object):
         dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
         self.conn = cx_Oracle.connect(cfg['ORACLE_USER'], cfg['ORACLE_PASSWORD'], dsn)
         self.singleNameCursor = self.conn.cursor()
+        self.shortSingleNameCursor = self.conn.cursor()
         self.multipleNameCursor = self.conn.cursor()
 
-        # if the user provides a single letter string
+        # if the user provides a single unbroken letter string
         # just find all names with that string
         # eg *[name_partial]*
         self.singleNameCursor.prepare("""
@@ -24,6 +25,26 @@ class DWService(object):
             library_person_lookup
         WHERE
             lower(FULL_NAME) like :name_partial
+        ORDER BY
+            Full_NAME,
+            END_DATE DESC,
+            DEPARTMENT_NAME
+        """)
+
+        # if the user provides an extremely short letter string
+        # assume it's a complete first or last name
+        self.shortSingleNameCursor.prepare("""
+        SELECT
+            FULL_NAME,
+            DEPARTMENT_NAME,
+            MIT_ID,
+            START_DATE,
+            END_DATE
+        FROM
+            library_person_lookup
+        WHERE
+            lower(FIRST_NAME) = :name_partial OR
+            lower(LAST_NAME) = :name_partial
         ORDER BY
             Full_NAME,
             END_DATE DESC,
@@ -79,26 +100,47 @@ class DWService(object):
     	return data
 
     def executeQuery(self, name_partial):
+        name_partial = name_partial.lower().strip()
+
+        # reject these
+        if (len(name_partial) < 2):
+            return None
+
+        # for comma delimited strings
+        # the first string is the last name
+        # the rest is assumed to be the first name
         name_array = name_partial.split(',', 1)
 
         if len(name_array) > 1:
             name_hash = {
-                'first_name_partial': name_array[1].lower().strip() +'%',
-                'last_name_partial': name_array[0].lower().strip() +'%'
+                'first_name_partial': name_array[1].strip() +'%',
+                'last_name_partial': name_array[0].strip() +'%'
             }
 
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
 
+        # for multiple strings broken by spaces
+        # the last string is assumed to be the last name
+        # the rest is assumed to be the first name
         name_array = name_partial.rsplit(' ', 1)
 
         if len(name_array) > 1:
             name_hash = {
-                'first_name_partial': name_array[0].lower().strip() +'%',
-                'last_name_partial': name_array[1].lower().strip() +'%'
+                'first_name_partial': name_array[0] +'%',
+                'last_name_partial': name_array[1] +'%'
             }
 
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
 
-        name_hash = {'name_partial': '%'+ name_partial.lower().strip() +'%'}
 
+        # for very short strings w/o commas or spaces
+        # assume it's a complete first or last name
+        if (len(name_partial) < 3):
+            name_hash = {'name_partial': name_partial}
+
+            return self.shortSingleNameCursor.execute(None, name_hash).fetchall()
+
+        # all other cases
+        name_hash = {'name_partial': '%'+ name_partial +'%'}
+        
         return self.singleNameCursor.execute(None, name_hash).fetchall()

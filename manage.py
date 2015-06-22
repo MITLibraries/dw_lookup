@@ -20,6 +20,6 @@ def author():
         return jsonify(dw_service.get_data(request.args.get('name_partial')))
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8666, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 #else:
 #    app.debug = True
