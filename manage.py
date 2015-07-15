@@ -17,9 +17,9 @@ cors = CORS(app, resources=r'/author/*')
 @app.route('/author/', methods=['GET'])
 def author():
     with DWService() as dw_service:
-        return jsonify(dw_service.get_data(request.args.get('name_partial')))
+        return jsonify(dw_service.get_data(request.args.get('name_string')))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-#else:
-#    app.debug = True
+else:
+   app.debug = True
