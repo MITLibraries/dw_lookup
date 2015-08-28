@@ -5,14 +5,29 @@ Deploy:
 
 - clone to directory desired (ex /var/www/libraries-dev.mit.edu/, full path will be /var/www/libraries-dev.mit.edu/author_lookup_api/)
 
-- copy static files to static dir (ex /var/www/libraries-dev.mit.edu/static/)
+- oracle needs to be installed. For this example, it's at /usr/lib/oracle/12.1/
+
+NOTES ON ORACLE:
+
+your env should have:
+ORACLE_HOME=/usr/lib/oracle/12.1/client64/lib
+LD_RUN_PATH=/usr/lib/oracle/12.1/client64/lib
+LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib
+PATH=/usr/lib/oracle/12.1/client64/bin:$PATH
+
+you will need the instantclient sdk optional dl in the lib dir. (instant client and optional stuff found here: http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
+
+you should have the following symlinks:
+
+sudo ln -s /usr/lib/oracle/12.1/client64/lib/libclntsh.so.12.1 /usr/lib/oracle/12.1/client64/lib/libclntsh.so
+sudo ln -s /usr/lib/oracle/12.1/client64/lib/libocci.so.12.1 /usr/lib/oracle/12.1/client64/lib/libocci.so
+
+- create virtual env in cloned directory, and pip install requirements.txt
+
+- fill in oracle name/pw for author_lookup/config/default.yml
 
 - update conf file. Ex:
     to file /etc/httpd/conf.d/ssl.conf add:
-    
-    Alias /static/ "/var/www/libraries-dev.mit.edu/static/"
-
-    and 
 
     WSGIDaemonProcess author_lookup_api user=szendeh group=szendeh threads=5 python-path=/var/www/libraries-dev.mit.edu/author_lookup_api/
     WSGIScriptAlias /author_lookup_api "/var/www/libraries-dev.mit.edu/author_lookup_api/author_lookup.wsgi"
@@ -24,6 +39,8 @@ Deploy:
     </Directory>
 
     (the paths could change depending on where you cloned into)
+
+- restart httpd server eg sudo apachectl restart
 
 
 Usage:
