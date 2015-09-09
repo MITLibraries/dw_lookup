@@ -1,5 +1,6 @@
 import site
-site.addsitedir('/var/www/libraries-dev.mit.edu/author_lookup_api/env/lib/python2.6/site-packages')
+from os.path import dirname
+site.addsitedir(dirname(__file__) +'/env/lib/python2.6/site-packages')
 
 from manage import app as application
 

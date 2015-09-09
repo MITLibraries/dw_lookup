@@ -1,5 +1,7 @@
 from __future__ import absolute_import
+
 import cx_Oracle
+import re
 from author_lookup.config import Config
 
 class DWService(object):
@@ -78,7 +80,7 @@ class DWService(object):
 
     def get_data(self, name_string):
     	data = {'results': []}
-    	res = self.executeQuery(name_string)
+    	res = self.execute_query(name_string)
 
     	for item in res:
     		data['results'].append({
@@ -92,9 +94,26 @@ class DWService(object):
 
     	return data
 
-    def executeQuery(self, name_string):
-        name_string = name_string.lower().strip()
+    def process_name_string(self, name_string):
+        name_string = name_string.lower()
+        name_string = name_string.strip()
 
+        return name_string
+
+    def process_first_name(self, first_name_partial):
+        first_name_partial = first_name_partial.strip().split(' ', 1)[0]
+
+        return first_name_partial
+
+    def process_last_name(self, last_name_partial):
+        last_name_partial = re.sub(r'\b(jr\.?|iii)$', '', last_name_partial)
+        last_name_partial = last_name_partial.strip()
+
+        return last_name_partial
+
+    def execute_query(self, name_string):
+        name_string = self.process_name_string(name_string)
+        print name_string
         # reject these
         if (len(name_string) < 2):
             return []
@@ -107,16 +126,17 @@ class DWService(object):
 
         if len(name_array) > 1:
             name_hash = {
-                'first_name_partial': name_array[1].strip().split(' ', 1)[0] +'%',
-                'last_name_partial': name_array[0].strip() +'%'
+                'first_name_partial': self.process_first_name(name_array[1]) +'%',
+                'last_name_partial': self.process_last_name(name_array[0]) +'%'
             }
-
+            print name_hash
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
 
         # for multiple strings broken by spaces
         # the last string is assumed to be a partial last name
-        # the rest is assumed to be the first name
-        name_array = name_string.rsplit(' ', 1)
+        # the first string is assumed to be the first name
+        # for now, we are ignoring any interstitial strings
+        name_array = name_string.split(' ')
 
         if len(name_array) > 1:
             name_hash_single = {'name_partial': '%'+ name_string +'%'}
@@ -124,8 +144,8 @@ class DWService(object):
             singleStringRes = self.partialSingleNameCursor.execute(None, name_hash_single).fetchall()
 
             name_hash_multiple = {
-                'first_name_partial': name_array[0] +'%',
-                'last_name_partial': name_array[1] +'%'
+                'first_name_partial': self.process_last_name(name_array[0]) +'%',
+                'last_name_partial': self.process_last_name(name_array[-1]) +'%'
             }
 
             return singleStringRes + self.multipleNameCursor.execute(None, name_hash_multiple).fetchall()
