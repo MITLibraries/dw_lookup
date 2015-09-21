@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 
+from author_lookup.config import Config
+from nameparser import HumanName
+
 import cx_Oracle
 import re
-from author_lookup.config import Config
 
 class DWService(object):
     def __init__(self):
@@ -94,71 +96,35 @@ class DWService(object):
 
     	return data
 
-    def process_name_string(self, name_string):
-        name_string = name_string.lower()
-        name_string = name_string.strip()
-
-        return name_string
-
-    def process_first_name(self, first_name_partial):
-        first_name_partial = first_name_partial.strip().split(' ', 1)[0]
-
-        return first_name_partial
-
-    def process_last_name(self, last_name_partial):
-        last_name_partial = re.sub(r'\b(jr\.?|iii)$', '', last_name_partial)
-        last_name_partial = last_name_partial.strip()
-
-        return last_name_partial
-
     def execute_query(self, name_string):
-        name_string = self.process_name_string(name_string)
-        print name_string
+        name_string = name_string.lower()
+        print "name_string: "+ name_string
+        print "HumanName: "+ str(HumanName(name_string))
+        print HumanName(name_string).as_dict()
+
         # reject these
         if (len(name_string) < 2):
             return []
 
-        # for comma delimited strings
-        # the string before the comma is a partial last name
-        # the first string after the comma is assumed to be a partial first
-        # for now, we ignore the rest of the string
-        name_array = name_string.split(',', 1)
-
-        if len(name_array) > 1:
-            name_hash = {
-                'first_name_partial': self.process_first_name(name_array[1]) +'%',
-                'last_name_partial': self.process_last_name(name_array[0]) +'%'
-            }
-            print name_hash
-            return self.multipleNameCursor.execute(None, name_hash).fetchall()
-
-        # for multiple strings broken by spaces
-        # the last string is assumed to be a partial last name
-        # the first string is assumed to be the first name
-        # for now, we are ignoring any interstitial strings
-        name_array = name_string.split(' ')
-
-        if len(name_array) > 1:
-            name_hash_single = {'name_partial': '%'+ name_string +'%'}
-
-            singleStringRes = self.partialSingleNameCursor.execute(None, name_hash_single).fetchall()
-
-            name_hash_multiple = {
-                'first_name_partial': self.process_last_name(name_array[0]) +'%',
-                'last_name_partial': self.process_last_name(name_array[-1]) +'%'
-            }
-
-            return singleStringRes + self.multipleNameCursor.execute(None, name_hash_multiple).fetchall()
-
-
-        # for very short strings w/o commas or spaces
+        # for very short strings
         # assume it's a complete first or last name
         if (len(name_string) < 3):
             name_hash = {'name_partial': name_string}
 
             return self.completeSingleNameCursor.execute(None, name_hash).fetchall()
 
-        # all other cases
+        parsed_name_string = HumanName(name_string)
+
+        # if there is more than a single word
+        if (parsed_name_string.first and parsed_name_string.last):
+            name_hash = {
+                'first_name_partial': parsed_name_string.first +'%',
+                'last_name_partial': parsed_name_string.last +'%'
+            }
+
+            return self.multipleNameCursor.execute(None, name_hash).fetchall()
+
+        # single name, longer than 3 chars
         name_hash = {'name_partial': '%'+ name_string +'%'}
 
         return self.partialSingleNameCursor.execute(None, name_hash).fetchall()
