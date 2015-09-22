@@ -16,59 +16,117 @@ class DWService(object):
         self.multipleNameCursor = self.conn.cursor()
 
         self.partialSingleNameCursor.prepare("""
-        SELECT
-            FULL_NAME,
-            DEPARTMENT_NAME,
-            MIT_ID,
-            START_DATE,
-            END_DATE,
-            PERSON_TYPE
-        FROM
-            library_person_lookup
-        WHERE
-            lower(FULL_NAME) like :name_partial
+        (
+            SELECT
+                library_person_lookup.full_name,
+                library_person_lookup.department_name,
+                library_person_lookup.mit_id,
+                library_person_lookup.start_date,
+                library_person_lookup.end_date,
+                library_person_lookup.person_type,
+
+                library_name_variant.full_name as full_name_variant,
+                library_name_variant.name_type
+            FROM
+                library_name_variant right outer join
+                library_person_lookup on
+                library_name_variant.mit_id=library_person_lookup.mit_id
+            WHERE
+                lower(library_person_lookup.full_name) like '%'|| :name_partial ||' %'
+        )
+        UNION
+        (
+            SELECT
+                library_person_lookup.full_name as full_name,
+                library_person_lookup.department_name as department_name,
+                library_person_lookup.mit_id,
+                library_person_lookup.start_date,
+                library_person_lookup.end_date as end_date,
+                library_person_lookup.person_type,
+
+                library_name_variant.full_name as full_name_variant,
+                library_name_variant.name_type
+            FROM
+                library_name_variant,
+                library_person_lookup
+            WHERE
+                lower(library_name_variant.full_name) like '%'|| :name_partial ||' %' AND
+                library_name_variant.mit_id=library_person_lookup.mit_id
+        )
         ORDER BY
-            Full_NAME,
-            END_DATE DESC,
-            DEPARTMENT_NAME
+            full_name,
+            end_date desc,
+            department_name
         """)
 
         self.completeSingleNameCursor.prepare("""
         SELECT
-            FULL_NAME,
-            DEPARTMENT_NAME,
-            MIT_ID,
-            START_DATE,
-            END_DATE,
-            PERSON_TYPE
+            library_person_lookup.full_name,
+            library_person_lookup.department_name,
+            library_person_lookup.mit_id,
+            library_person_lookup.start_date,
+            library_person_lookup.end_date,
+            library_person_lookup.person_type,
+
+            library_name_variant.full_name as full_name_variant,
+            library_name_variant.name_type
         FROM
-            library_person_lookup
+            library_name_variant right outer join
+            library_person_lookup on
+            library_name_variant.mit_id=library_person_lookup.mit_id
         WHERE
-            lower(FIRST_NAME) = :name_partial OR
-            lower(LAST_NAME) = :name_partial
+            lower(library_person_lookup.first_name) = :name_partial OR
+            lower(library_person_lookup.last_name) = :name_partial
         ORDER BY
-            Full_NAME,
-            END_DATE DESC,
-            DEPARTMENT_NAME
+            library_person_lookup.full_name,
+            library_person_lookup.end_date desc,
+            library_person_lookup.department_name
         """)
 
         self.multipleNameCursor.prepare("""
+        (
         SELECT
-            FULL_NAME,
-            DEPARTMENT_NAME,
-            MIT_ID,
-            START_DATE,
-            END_DATE,
-            PERSON_TYPE
+            library_person_lookup.full_name as full_name,
+            library_person_lookup.department_name as department_name,
+            library_person_lookup.mit_id,
+            library_person_lookup.start_date,
+            library_person_lookup.end_date as end_date,
+            library_person_lookup.person_type,
+
+            library_name_variant.full_name as full_name_variant,
+            library_name_variant.name_type
         FROM
+            library_name_variant right outer join
+            library_person_lookup on
+            library_name_variant.mit_id=library_person_lookup.mit_id
+        WHERE
+            lower(library_person_lookup.first_name) like :first_name_partial ||'%' AND
+            lower(library_person_lookup.last_name) like '%'|| :last_name_partial ||'%'
+        )
+        UNION
+        (
+        SELECT
+            library_person_lookup.full_name as full_name,
+            library_person_lookup.department_name as department_name,
+            library_person_lookup.mit_id,
+            library_person_lookup.start_date,
+            library_person_lookup.end_date as end_date,
+            library_person_lookup.person_type,
+
+            library_name_variant.full_name as full_name_variant,
+            library_name_variant.name_type
+        FROM
+            library_name_variant,
             library_person_lookup
         WHERE
-            lower(FIRST_NAME) like :first_name_partial AND
-            lower(LAST_NAME) like :last_name_partial
+            lower(library_name_variant.full_name) like '%'|| :first_name_partial ||' %' AND
+            lower(library_name_variant.full_name) like '%'|| :last_name_partial ||'%' AND
+            library_name_variant.mit_id=library_person_lookup.mit_id
+        )
         ORDER BY
-            Full_NAME,
-            END_DATE DESC,
-            DEPARTMENT_NAME
+            full_name,
+            end_date desc,
+            department_name
         """)
 
     def __enter__(self):
@@ -91,7 +149,9 @@ class DWService(object):
                 'mit_id': item[2],
                 'start_date': item[3],
                 'end_date': item[4],
-                'type': item[5]
+                'type': item[5],
+                'full_name_variant': item[6],
+                'name_type': item[7]
     		})
 
     	return data
@@ -118,8 +178,8 @@ class DWService(object):
         # if there is more than a single word
         if (parsed_name_string.first and parsed_name_string.last):
             name_hash = {
-                'first_name_partial': parsed_name_string.first +'%',
-                'last_name_partial': parsed_name_string.last +'%'
+                'first_name_partial': parsed_name_string.first,
+                'last_name_partial': parsed_name_string.last
             }
 
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
