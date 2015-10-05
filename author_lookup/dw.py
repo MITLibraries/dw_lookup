@@ -138,41 +138,31 @@ class DWService(object):
         res = self.execute_query(name_string)
 
         for item in res:
-            # create a class for this
-            person_obj = {
-                'name': item[0],
-                'dept': item[1],
-                'mit_id': item[2],
-                'start_date': item[3],
-                'end_date': item[4],
-                'type': item[5],
-                'full_name_variant': item[6],
-                'name_type': item[7]
-            }
+            name = item[0]
+            dept = item[1]
+            mit_id = item[2]
+            start_date = item[3]
+            end_date = item[4]
+            type = item[5]
+            full_name_variant = item[6]
+            name_type = item[7]
 
-            results_obj = data['results'].setdefault(person_obj['mit_id'], {
-                'name': person_obj['name'],
-                'mit_id': person_obj['mit_id'],
+            result_obj = data['results'].setdefault(mit_id, {
+                'name': name,
+                'mit_id': mit_id,
                 'depts': {},
                 'name_variants': {}
             })
 
-            # create an empty hash for this department, if it doesn't exist
-            dept_obj = results_obj['depts'].setdefault(person_obj['dept'], {})
+            result_obj['depts'].setdefault(dept, {})
+            result_obj['depts'][dept].setdefault(type, {
+                'start_date': start_date,
+                'end_date': end_date
+            })
 
-            # each person can be involved in a department in different capacities
-            # this is called 'type'
-            # each type of capacity for each department has a start and end date
-            dept_obj[person_obj['type']] = {
-                'start_date': person_obj['start_date'],
-                'end_date': person_obj['end_date']
-            }
-
-            if (person_obj['full_name_variant']):
-                # create empty set for this name varient, since there can be multiple types
-                name_varient_obj = results_obj['name_variants'].setdefault(person_obj['full_name_variant'], {})
-                
-                name_varient_obj[person_obj['name_type']] = True
+            if (full_name_variant):
+                result_obj['name_variants'].setdefault(full_name_variant, {})
+                result_obj['name_variants'][full_name_variant].setdefault(name_type, True)
 
     	return data
 
