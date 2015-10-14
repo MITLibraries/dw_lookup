@@ -32,8 +32,8 @@ class DWService(object):
                 library_person_lookup on
                 library_name_variant.mit_id=library_person_lookup.mit_id
             WHERE
-                lower(library_person_lookup.first_name) = '%'|| :name_partial ||'%' OR
-                lower(library_person_lookup.last_name) = '%'|| :name_partial ||'%'
+                lower(library_person_lookup.first_name) like '%'|| :name_partial ||'%' OR
+                lower(library_person_lookup.last_name) like '%'|| :name_partial ||'%'
         )
         UNION
         (
@@ -177,7 +177,6 @@ class DWService(object):
         # assume it's a complete first or last name
         if (len(name_string) < 3):
             name_hash = {'name_partial': name_string}
-
             return self.completeSingleNameCursor.execute(None, name_hash).fetchall()
 
         parsed_name_string = HumanName(name_string)
@@ -188,10 +187,8 @@ class DWService(object):
                 'first_name_partial': parsed_name_string.first,
                 'last_name_partial': parsed_name_string.last
             }
-
             return self.multipleNameCursor.execute(None, name_hash).fetchall()
 
         # single name, longer than 3 chars
-        name_hash = {'name_partial': '%'+ name_string +'%'}
-
+        name_hash = {'name_partial': name_string}
         return self.partialSingleNameCursor.execute(None, name_hash).fetchall()
