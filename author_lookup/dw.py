@@ -166,8 +166,17 @@ class DWService(object):
 
     	return data
 
-    def execute_query(self, name_string):
+    def preprocess_string(self, name_string):
+        # remove all caps
         name_string = name_string.lower()
+
+        # remove all periods
+        name_string = name_string.replace(".", "")
+
+        return name_string
+
+    def execute_query(self, name_string):
+        name_string = self.preprocess_string(name_string)
 
         # reject these
         if (len(name_string) < 2):
