@@ -19,8 +19,10 @@ you will need the instantclient sdk optional dl in the lib dir. (instant client 
 
 you should have the following symlinks:
 
-sudo ln -s /usr/lib/oracle/12.1/client64/lib/libclntsh.so.12.1 /usr/lib/oracle/12.1/client64/lib/libclntsh.so
-sudo ln -s /usr/lib/oracle/12.1/client64/lib/libocci.so.12.1 /usr/lib/oracle/12.1/client64/lib/libocci.so
+```
+$ sudo ln -s /usr/lib/oracle/12.1/client64/lib/libclntsh.so.12.1 /usr/lib/oracle/12.1/client64/lib/libclntsh.so
+$ sudo ln -s /usr/lib/oracle/12.1/client64/lib/libocci.so.12.1 /usr/lib/oracle/12.1/client64/lib/libocci.so
+```
 
 - create virtual env in cloned directory, and pip install requirements.txt
 
@@ -29,15 +31,16 @@ sudo ln -s /usr/lib/oracle/12.1/client64/lib/libocci.so.12.1 /usr/lib/oracle/12.
 - update conf file. Ex:
     to file /etc/httpd/conf.d/ssl.conf add:
 
-    WSGIDaemonProcess author_lookup_api user=szendeh group=szendeh threads=5 python-path=/var/www/libraries-dev.mit.edu/author_lookup_api/
-    WSGIScriptAlias /author_lookup_api "/var/www/libraries-dev.mit.edu/author_lookup_api/author_lookup.wsgi"
-    <Directory "/var/www/libraries-dev.mit.edu/author_lookup_api">
-       WSGIProcessGroup author_lookup_api
-       WSGIApplicationGroup %{GLOBAL}
-       Order deny,allow
-       Allow from all
-    </Directory>
-
+```
+WSGIDaemonProcess author_lookup_api user=szendeh group=szendeh threads=5 python-path=/var/www/libraries-dev.mit.edu/author_lookup_api/
+WSGIScriptAlias /author_lookup_api "/var/www/libraries-dev.mit.edu/author_lookup_api/author_lookup.wsgi"
+<Directory "/var/www/libraries-dev.mit.edu/author_lookup_api">
+   WSGIProcessGroup author_lookup_api
+   WSGIApplicationGroup %{GLOBAL}
+   Order deny,allow
+   Allow from all
+</Directory>
+```
     (the paths could change depending on where you cloned into)
 
 - restart httpd server eg sudo apachectl restart
@@ -60,3 +63,14 @@ https://libraries-dev.mit.edu/author_lookup_api/author/?name_string=[2 or more c
 
 # all other cases (ex willi)
 # assume name partial (wildcard beginning and end)
+
+
+Testing:
+
+- install tox
+
+- run 
+
+```
+$ tox tests
+```
