@@ -98,7 +98,7 @@ class DWService(object):
             library_name_variant.mit_id=library_person_lookup.mit_id
         WHERE
             lower(library_person_lookup.first_name) like :first_name_partial ||'%' AND
-            lower(library_person_lookup.last_name) like '%'|| :last_name_partial ||'%'
+            lower(library_person_lookup.last_name) like :last_name_partial ||'%'
         )
         UNION
         (
@@ -117,7 +117,7 @@ class DWService(object):
             library_person_lookup
         WHERE
             lower(library_name_variant.full_name) like '%, '|| :first_name_partial ||' %' AND
-            lower(library_name_variant.full_name) like '%'|| :last_name_partial ||'%' AND
+            lower(library_name_variant.full_name) like :last_name_partial ||'%' AND
             library_name_variant.mit_id=library_person_lookup.mit_id
         )
         ORDER BY
@@ -132,6 +132,44 @@ class DWService(object):
         self.completeSingleNameCursor.close()
         self.multipleNameCursor.close()
         self.conn.close()
+
+    def search_authors(self, query_obj):
+        data = {'results': {}}
+        res = []
+        print query_obj
+        if ('name_string' in query_obj):
+            res = self.execute_query(query_obj['name_string'])
+        elif ('first' in query_obj and 'last' in query_obj):
+            res = self.query_separates(query_obj['first'], query_obj['last'])
+
+        for item in res:
+            name = item[0]
+            dept = item[1]
+            mit_id = item[2]
+            start_date = item[3]
+            end_date = item[4]
+            type = item[5]
+            full_name_variant = item[6]
+            name_type = item[7]
+
+            result_obj = data['results'].setdefault(mit_id, {
+                'name': name,
+                'mit_id': mit_id,
+                'depts': {},
+                'name_variants': {}
+            })
+
+            result_obj['depts'].setdefault(dept, {})
+            result_obj['depts'][dept].setdefault(type, {
+                'start_date': start_date,
+                'end_date': end_date
+            })
+
+            if (full_name_variant):
+                result_obj['name_variants'].setdefault(full_name_variant, {})
+                result_obj['name_variants'][full_name_variant].setdefault(name_type, True)
+
+        return data
 
     def get_data(self, name_string):
         data = {'results': {}}
@@ -201,3 +239,16 @@ class DWService(object):
         # single name, longer than 3 chars
         name_hash = {'name_partial': name_string}
         return self.partialSingleNameCursor.execute(None, name_hash).fetchall()
+
+    def query_separates(self, first, last):
+        name_hash = {
+            'first_name_partial': self.preprocess_string(first),
+            'last_name_partial': self.preprocess_string(last)
+        }
+
+        # reject these
+        if (len(name_hash['first_name_partial']) < 2 and len(name_hash['first_name_partial']) < 2):
+            return []
+
+        print name_hash
+        return self.multipleNameCursor.execute(None, name_hash).fetchall()

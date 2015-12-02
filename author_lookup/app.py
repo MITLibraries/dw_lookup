@@ -17,6 +17,12 @@ def create_app(config_obj=None):
     @app.route('/author/', methods=['GET'])
     def author():
         with DWService() as dw_service:
-            return jsonify(dw_service.get_data(request.args.get('name_string')))
+            return jsonify(dw_service.search_authors({'name_string': request.args.get('name_string')}))
+
+    cors = CORS(app, resources=r'/authors*')
+    @app.route('/authors', methods=['GET'])
+    def search_authors():
+        with DWService() as dw_service:
+            return jsonify(dw_service.search_authors({'first':request.args.get('first'),'last':request.args.get('last')}))
 
     return app
