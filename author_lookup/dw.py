@@ -247,7 +247,7 @@ class DWService(object):
         }
 
         # reject these
-        if (len(name_hash['first_name_partial']) < 2 and len(name_hash['first_name_partial']) < 2):
+        if (len(name_hash['first_name_partial']) < 2 and len(name_hash['last_name_partial']) < 2):
             return []
 
         print name_hash
