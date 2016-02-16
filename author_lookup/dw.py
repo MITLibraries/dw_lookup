@@ -134,13 +134,17 @@ class DWService(object):
         self.conn.close()
 
     def search_authors(self, query_obj):
-        data = {'results': {}}
         res = []
-        print query_obj
+
         if ('name_string' in query_obj):
             res = self.execute_query(query_obj['name_string'])
         elif ('first' in query_obj and 'last' in query_obj):
             res = self.query_separates(query_obj['first'], query_obj['last'])
+
+        return self.process_response(res)
+
+    def process_response(self, res):
+        data = {'results': {}}
 
         for item in res:
             name = item[0]
@@ -152,24 +156,31 @@ class DWService(object):
             full_name_variant = item[6]
             name_type = item[7]
 
-            result_obj = data['results'].setdefault(mit_id, {
-                'name': name,
-                'mit_id': mit_id,
-                'depts': {},
-                'name_variants': {}
-            })
+            if mit_id not in data['results']:
+                data['results'][mit_id] = {
+                    'name': name,
+                    'mit_id': mit_id,
+                    'depts': {},
+                    'name_variants': {}
+                }
 
-            result_obj['depts'].setdefault(dept, {})
-            result_obj['depts'][dept].setdefault(type, {
-                'start_date': start_date,
-                'end_date': end_date
-            })
 
-            if (full_name_variant):
-                result_obj['name_variants'].setdefault(full_name_variant, {})
-                result_obj['name_variants'][full_name_variant].setdefault(name_type, True)
+            result_obj = data['results'][mit_id]
+
+            if dept not in result_obj['depts']:
+                result_obj['depts'][dept] = {}
+
+            if type not in result_obj['depts'][dept]:
+                result_obj['depts'][dept][type] = {
+                    'start_date': start_date,
+                    'end_date': end_date
+                }
+
+            if full_name_variant and (full_name_variant not in result_obj['name_variants']):
+                result_obj['name_variants'][full_name_variant] = True
 
         return data
+
 
     def get_data(self, name_string):
         data = {'results': {}}

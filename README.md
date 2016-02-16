@@ -5,26 +5,31 @@ Deploy:
 
 - clone to directory desired (ex /var/www/libraries-dev.mit.edu/, full path will be /var/www/libraries-dev.mit.edu/author_lookup_api/)
 
-- oracle needs to be installed. For this example, it's at /usr/lib/oracle/12.1/
+- oracle or oracle instantclient needs to be installed and set up correctly. This can be a trial.
 
 NOTES ON ORACLE:
 
-your env should have:
-ORACLE_HOME=/usr/lib/oracle/12.1/client64/lib
-LD_RUN_PATH=/usr/lib/oracle/12.1/client64/lib
-LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib
-PATH=/usr/lib/oracle/12.1/client64/bin:$PATH
+if Oracle is not installed, you can:
+  - go here: http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
+  - select your deployed env (OSX, Linux, 32/64 bit etc)
+  - download *both* the basic package *and* the optional SDK package
+  - tar -xzf both and copy the contents into a place you will remember. For this example, it's at /usr/lib/oracle/12.1/
 
-you will need the instantclient sdk optional dl in the lib dir. (instant client and optional stuff found here: http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
-
-you should have the following symlinks:
-
+once Oracle is installed, you must make sure your env is pointing at it properly. eg something like:
 ```
-$ sudo ln -s /usr/lib/oracle/12.1/client64/lib/libclntsh.so.12.1 /usr/lib/oracle/12.1/client64/lib/libclntsh.so
-$ sudo ln -s /usr/lib/oracle/12.1/client64/lib/libocci.so.12.1 /usr/lib/oracle/12.1/client64/lib/libocci.so
+export ORACLE_HOME=/Users/szendeh/work/oracle/11_2
+export DYLD_LIBRARY_PATH=$ORACLE_HOME
+export LD_LIBRARY_PATH=$ORACLE_HOME
 ```
 
-- create virtual env in cloned directory, and pip install requirements.txt
+you should have the following symlinks in the oracle directory:
+
+```
+ln -s libclntsh.dylib.11.1 libclntsh.dylib
+ln -s libocci.dylib.11.1 libocci.dylib
+```
+
+- create virtual env (I do it right in the cloned directory), activate it, and pip install requirements.txt
 
 - fill in oracle name/pw for author_lookup/config/default.yml
 
