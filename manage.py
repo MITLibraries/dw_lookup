@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from author_lookup.app import create_app
+from dw_lookup.app import create_app
 
 app = create_app()
 

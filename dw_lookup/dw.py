@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from author_lookup.config import Config
+from dw_lookup.config import Config
 from nameparser import HumanName
 
 import cx_Oracle
