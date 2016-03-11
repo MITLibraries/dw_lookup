@@ -4,13 +4,21 @@ from author_lookup.config import Config
 from nameparser import HumanName
 
 import cx_Oracle
+import os
 import re
 
 class DWService(object):
     def __init__(self):
         cfg = Config()
+        
         dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
-        self.conn = cx_Oracle.connect(cfg['ORACLE_USER'], cfg['ORACLE_PASSWORD'], dsn)
+
+        # NOTE, these must be set in the environment!
+        user = os.environ.get('ORACLE_USER')
+    	pw = os.environ.get('ORACLE_PASSWORD')
+        
+        self.conn = cx_Oracle.connect(user, pw, dsn)
+
         self.multipleNameCursor = self.conn.cursor()
 
         self.multipleNameCursor.prepare("""

@@ -31,7 +31,7 @@ ln -s libocci.dylib.11.1 libocci.dylib
 
 - create virtual env (I do it right in the cloned directory), activate it, and pip install requirements.txt
 
-- fill in oracle name/pw for author_lookup/config/default.yml
+- name/pw for oracle db must be set in env eg export ORACLE_USER=xyz, script will pick those up from env
 
 - update conf file. Ex:
     to file /etc/httpd/conf.d/ssl.conf add:
@@ -48,26 +48,16 @@ WSGIScriptAlias /author_lookup_api "/var/www/libraries-dev.mit.edu/author_lookup
 ```
     (the paths could change depending on where you cloned into)
 
-- restart httpd server eg sudo apachectl restart
+- update evn apache runs with using file /etc/sysconfig/httpd Add:
+```
+export ORACLE_USER=[fill in username]
+export ORACLE_PASSWORD=[fill in password]
+```
+
+(script looks for these variables in the env when it runs)
 
 
-Usage:
-
-https://libraries-dev.mit.edu/author_lookup_api/author/?name_string=[2 or more chars]
-
-# for comma delimited strings (ex 'smith, joh')
-# the first string is the complete last name (no wildcard)
-# the rest is assumed to be beginning of first name (wildcard end)
-
-# for multiple strings broken by spaces (ex 'john smith')
-# the last string is assumed to be the last name (wildcard end)
-# the rest is assumed to be the first name (wildcard end)
-
-# for very short strings w/o commas or spaces (ex 'su')
-# assume it's a complete first or last name (no wildcard, but check complete string against first -or- last name fields)
-
-# all other cases (ex willi)
-# assume name partial (wildcard beginning and end)
+- restart httpd server eg sudo service httpd restart
 
 
 Testing:
