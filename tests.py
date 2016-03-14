@@ -3,7 +3,7 @@ import json
 import os
 import unittest
 
-from author_lookup.dw import DWService
+from dw_lookup.dw import DWService
 
 class TestCase(unittest.TestCase):
     def setUp(self):

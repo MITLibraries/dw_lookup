@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from author_lookup.dw import DWService
+from dw_lookup.dw import DWService
 from mock import Mock, patch
 
 import pytest
