@@ -105,7 +105,7 @@ class DWService(object):
             end_date = item[4]
             type = item[5]
             full_name_variant = item[6]
-            orcid_id = item[7]
+            orcid_id = item[7] or ""
 
             if mit_id not in data['results']:
                 data['results'][mit_id] = {
