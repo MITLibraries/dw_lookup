@@ -31,11 +31,15 @@ class DWService(object):
             to_char(library_person_lookup.end_date, 'yyyy-mm') as end_date,
             library_person_lookup.person_type,
 
-            library_name_variant.full_name as full_name_variant
+            library_name_variant.full_name as full_name_variant,
+
+            orcid_to_mitid.orcid as orcid_id
         FROM
-            library_name_variant right outer join
-            library_person_lookup on
-            library_name_variant.mit_id=library_person_lookup.mit_id
+            library_person_lookup
+                left outer join library_name_variant on
+                    library_name_variant.mit_id=library_person_lookup.mit_id
+                left outer join orcid_to_mitid on
+                    orcid_to_mitid.mit_id=library_person_lookup.mit_id
         WHERE
             lower(library_person_lookup.first_name) like :first_name_partial ||'%' AND
             lower(library_person_lookup.last_name) like :last_name_partial ||'%'
@@ -50,12 +54,16 @@ class DWService(object):
             to_char(library_person_lookup.end_date, 'yyyy-mm') as end_date,
             library_person_lookup.person_type,
 
-            library_name_variant.full_name as full_name_variant
+            library_name_variant.full_name as full_name_variant,
+
+            orcid_to_mitid.orcid as orcid_id
         FROM
             library_name_variant,
             library_person_lookup
+                left outer join orcid_to_mitid on
+                    orcid_to_mitid.mit_id=library_person_lookup.mit_id
         WHERE
-            lower(library_name_variant.full_name) like '%, '|| :first_name_partial ||' %' AND
+            lower(library_name_variant.full_name) like '%, '|| :first_name_partial ||'%' AND
             lower(library_name_variant.full_name) like :last_name_partial ||'%' AND
             library_name_variant.mit_id=library_person_lookup.mit_id
         )
@@ -97,13 +105,15 @@ class DWService(object):
             end_date = item[4]
             type = item[5]
             full_name_variant = item[6]
+            orcid_id = item[7]
 
             if mit_id not in data['results']:
                 data['results'][mit_id] = {
                     'name': name,
                     'mit_id': mit_id,
                     'depts': {},
-                    'name_variants': {}
+                    'name_variants': {},
+                    'orcid_id': orcid_id
                 }
 
             result_obj = data['results'][mit_id]
