@@ -18,7 +18,8 @@ sample_db_response = [[
     2345,
     6789,
     'test type',
-    'test name varient'
+    'test name varient',
+    'abcdefg-123'
 ]]
 
 sample_processed_response = {
@@ -36,7 +37,8 @@ sample_processed_response = {
             },
             'name_variants': {
                 'test name varient': True
-            }
+            },
+            'orcid_id': 'abcdefg-123'
         }
     }
 }
