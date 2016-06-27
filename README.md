@@ -40,13 +40,15 @@ ln -s libocci.dylib.11.1 libocci.dylib
     to file /etc/httpd/conf.d/ssl.conf add:
 
 ```
-WSGIDaemonProcess dw_lookup user=szendeh group=szendeh processes=5 threads=1 python-path=/var/www/libraries-dev.mit.edu/htdocs/secure/dw_lookup/
-WSGIScriptAlias /dw_lookup "/var/www/libraries-dev.mit.edu/htdocs/secure/dw_lookup/dw_lookup.wsgi"
-<Directory "/var/www/libraries-dev.mit.edu/htdocs/secure/dw_lookup">
-   WSGIProcessGroup dw_lookup
-   WSGIApplicationGroup %{GLOBAL}
-   Order deny,allow
-   Allow from all
+WSGIDaemonProcess dw_lookup user=szendeh group=szendeh processes=5 threads=1 python-path=/var/www/libraries.mit.edu/htdocs/_api/dw_lookup/
+WSGIScriptAlias /api/dw_lookup "/var/www/libraries.mit.edu/htdocs/_api/dw_lookup/dw_lookup.wsgi"
+
+<Directory "/var/www/libraries.mit.edu/htdocs/_api/dw_lookup">
+    SetEnv ORACLE_HOME=/usr/lib/oracle/12.1/client64
+    WSGIProcessGroup dw_lookup
+    WSGIApplicationGroup %{GLOBAL}
+    Order deny,allow
+    Allow from 18.
 </Directory>
 ```
     (the paths could change depending on where you cloned into)
