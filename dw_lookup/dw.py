@@ -10,12 +10,15 @@ import re
 class DWService(object):
     def __init__(self):
         cfg = Config()
-        
-        dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
 
         # NOTE, these must be set in the environment!
         user = os.environ.get('ORACLE_USER')
-    	pw = os.environ.get('ORACLE_PASSWORD')
+        pw = os.environ.get('ORACLE_PASSWORD')
+
+        # might be better id this was as well
+        os.environ["NLS_LANG"] = ".AL32UTF8"
+        
+        dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
         
         self.conn = cx_Oracle.connect(user, pw, dsn)
 
@@ -88,8 +91,8 @@ class DWService(object):
             }
 
             # first or last name should be >1 char after preprocessing
-            if (    len(name_hash['first_name_partial']) > 1 or
-                    len(name_hash['last_name_partial']) > 1):
+            if (len(name_hash['first_name_partial']) > 1 or
+                len(name_hash['last_name_partial']) > 1):
                 res = self.multipleNameCursor.execute(None, name_hash).fetchall()
         
         return self.process_response(res)
@@ -127,8 +130,8 @@ class DWService(object):
                     'end_date': end_date
                 }
 
-            if (    full_name_variant and
-                    (full_name_variant not in result_obj['name_variants'])):
+            if (full_name_variant and
+                (full_name_variant not in result_obj['name_variants'])):
                 result_obj['name_variants'][full_name_variant] = True
 
         return data
