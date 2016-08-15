@@ -14,10 +14,10 @@ def create_app(config_obj=None):
         return render_template('demo.html')
 
     cors = CORS(app, resources=r'/author/*')
-    @app.route('/author/', methods=['GET'])
-    def author():
+    @app.route('/author/<mit_id>', methods=['GET'])
+    def author(mit_id):
         with DWService() as dw_service:
-            return jsonify(dw_service.search_authors({'name_string': request.args.get('name_string')}))
+            return jsonify(dw_service.get_author({'mit_id': mit_id}))
 
     cors = CORS(app, resources=r'/authors*')
     @app.route('/authors', methods=['GET'])
