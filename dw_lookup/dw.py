@@ -157,7 +157,9 @@ class DWService(object):
         return self
 
     def __exit__(self, type, value, traceback):
+        self.authorByIdCursor.close()
         self.multipleNameCursor.close()
+        self.multipleNameCursorWildcard.close()
         self.conn.close()
 
     def get_author(self, query_obj):
