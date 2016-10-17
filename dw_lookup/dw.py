@@ -21,7 +21,7 @@ class DWService(object):
         pw = os.environ.get('ORACLE_PASSWORD')
 
         # might be better id this was as well
-        os.environ["NLS_LANG"] = ".AL32UTF8"
+        os.environ['NLS_LANG'] = '.AL32UTF8'
         
         dsn = cx_Oracle.makedsn(cfg['ORACLE_HOST'], cfg['ORACLE_PORT'], cfg['ORACLE_SID'])
         
@@ -31,7 +31,7 @@ class DWService(object):
         self.multipleNameCursor = self.conn.cursor()
         self.multipleNameCursorWildcard = self.conn.cursor()
 
-        self.authorByIdCursor.prepare("""
+        self.authorByIdCursor.prepare('''
         SELECT
             library_person_lookup.full_name as full_name,
             library_person_lookup.department_name as department_name,
@@ -51,9 +51,9 @@ class DWService(object):
                     orcid_to_mitid.mit_id=library_person_lookup.mit_id
         WHERE
             library_person_lookup.mit_id = :mit_id
-        """)
+        ''')
 
-        self.multipleNameCursor.prepare("""
+        self.multipleNameCursor.prepare('''
         (
         SELECT
             library_person_lookup.full_name as full_name,
@@ -101,9 +101,9 @@ class DWService(object):
         )
         ORDER BY
             full_name
-        """)
+        ''')
 
-        self.multipleNameCursorWildcard.prepare("""
+        self.multipleNameCursorWildcard.prepare('''
         (
         SELECT
             library_person_lookup.full_name as full_name,
@@ -151,7 +151,7 @@ class DWService(object):
         )
         ORDER BY
             full_name
-        """)
+        ''')
 
     def __enter__(self):
         return self
@@ -219,7 +219,7 @@ class DWService(object):
             end_date = item[4]
             type = item[5]
             full_name_variant = item[6]
-            orcid_id = item[7] or ""
+            orcid_id = item[7] or ''
 
             if mit_id not in data['results']:
                 data['results'][mit_id] = {
@@ -255,10 +255,10 @@ class DWService(object):
 
     def wildcard_string(self, name_string):
         # wildcard all periods
-        name_string = name_string.replace(".", r".?")
+        name_string = name_string.replace('.', r'.?')
 
         # wildcard all dashes
-        name_string = name_string.replace("-", r"[- ]?")
+        name_string = name_string.replace('-', r'[- ]?')
 
         # wildcard diacritics, etc
         name_string = self.nonAsciiMatch.sub('.', name_string)
