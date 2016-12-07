@@ -10,6 +10,13 @@ from flask.ext.cors import CORS
 def create_app(config_obj=None):
     app = Flask(__name__)
 
+    cors = CORS(app, resources=r'/orcid/*')
+    @app.route('/orcid/<mit_id>', methods=['GET'])
+    @authenticate
+    def orcid(mit_id):
+        with DWService() as dw_service:
+            return jsonify(dw_service.get_orcid({'mit_id': mit_id}))
+
     cors = CORS(app, resources=r'/author/*')
     @app.route('/author/<mit_id>', methods=['GET'])
     @authenticate

@@ -30,6 +30,7 @@ class DWService(object):
         self.authorByIdCursor = self.conn.cursor()
         self.multipleNameCursor = self.conn.cursor()
         self.multipleNameCursorWildcard = self.conn.cursor()
+        self.orcidByMITIdCursor = self.conn.cursor()
 
         self.authorByIdCursor.prepare('''
         SELECT
@@ -153,6 +154,12 @@ class DWService(object):
             full_name
         ''')
 
+        self.orcidByMITIdCursor.prepare('''
+        SELECT orcid
+        FROM orcid_to_mitid
+        WHERE mit_id = :mit_id
+        ''')
+
     def __enter__(self):
         return self
 
@@ -160,7 +167,31 @@ class DWService(object):
         self.authorByIdCursor.close()
         self.multipleNameCursor.close()
         self.multipleNameCursorWildcard.close()
+        self.orcidByMITIdCursor.close()
         self.conn.close()
+
+    def get_orcid(self, query_obj):
+        res = []
+
+        if ('mit_id' not in query_obj):
+            return self.format_response(res)
+
+        if (self.mitIdMatch.search(query_obj['mit_id']) is None):
+            return self.format_response(res)
+
+        query_hash = {
+            'mit_id': query_obj['mit_id']
+        }
+
+        res = self.orcidByMITIdCursor.execute(None, query_hash).fetchone()
+        
+        data = {'results': {'orcid': ''}}
+
+        if res is not None:
+            data['results']['orcid'] = res[0]
+        
+        return data
+
 
     def get_author(self, query_obj):
         res = []
@@ -213,11 +244,11 @@ class DWService(object):
 
         for item in res:
             name = item[0]
-            dept = item[1]
-            mit_id = item[2]
+            dept = item[1] or 'NOT SPECIFIED'
+            mit_id = item[2] or 'NOT SPECIFIED'
             start_date = item[3]
             end_date = item[4]
-            type = item[5]
+            type = item[5] or 'NOT SPECIFIED'
             full_name_variant = item[6]
             orcid_id = item[7] or ''
 
