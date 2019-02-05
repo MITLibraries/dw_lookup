@@ -1,37 +1,33 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from dw_lookup.auth import authenticate
-from dw_lookup.dw import DWService
 from flask import Flask, jsonify, request
 from flask.ext.cors import CORS
 
-def create_app(config_obj=None):
-    app = Flask(__name__)
+from dw_lookup.auth import authenticate
+from dw_lookup.config import configure
+from dw_lookup.dw import db, get_orcid, get_author, search_authors
 
-    cors = CORS(app, resources=r'/orcid/*')
-    @app.route('/orcid/<mit_id>', methods=['GET'])
-    @authenticate
-    def orcid(mit_id):
-        with DWService() as dw_service:
-            return jsonify(dw_service.get_orcid({'mit_id': mit_id}))
 
-    cors = CORS(app, resources=r'/author/*')
-    @app.route('/author/<mit_id>', methods=['GET'])
-    @authenticate
-    def author(mit_id):
-        with DWService() as dw_service:
-            return jsonify(dw_service.get_author({'mit_id': mit_id}))
+app = Flask(__name__)
+configure(app)
+db.configure(app.config['CARBON_DB_HOST'], app.config['CARBON_DB_PORT'],
+             app.config['CARBON_DB_SID'], app.config['CARBON_DB_USER'],
+             app.config['CARBON_DB_PASSWORD'])
+CORS(app)
 
-    cors = CORS(app, resources=r'/authors*')
-    @app.route('/authors', methods=['GET'])
-    @authenticate
-    def search_authors():
-        with DWService() as dw_service:
-            return jsonify(dw_service.search_authors({
-                'first':request.args.get('first'),
-                'last':request.args.get('last')
-            }))
 
-    return app
+@app.route('/orcid/<mit_id>', methods=['GET'])
+@authenticate
+def orcid(mit_id):
+    jsonify(get_orcid(mit_id))
+
+
+@app.route('/author/<mit_id>', methods=['GET'])
+@authenticate
+def author(mit_id):
+    jsonify(get_author(mit_id))
+
+
+@app.route('/authors', methods=['GET'])
+@authenticate
+def authors():
+    jsonify(search_authors(first=request.args.get('first'),
+                           last=request.args.get('last')))
