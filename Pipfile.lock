@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "130ce639012bd54184726b25ea3037d253e73547c75eae9e5601cf9c3cb86c7e"
+            "sha256": "f952bcffb10ea55b1006a220642048ae2d92cdc91bc2426cc60863d35751a5d7"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -28,6 +28,13 @@
                 "sha256:c21ea096b5e17dd2bc3b5c5092daaeb98890a97336bf8fb1668d26cf31dcbc6e"
             ],
             "version": "==1.12.88"
+        },
+        "click": {
+            "hashes": [
+                "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
+                "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
+            ],
+            "version": "==7.0"
         },
         "cx-oracle": {
             "hashes": [
@@ -59,17 +66,19 @@
         },
         "flask": {
             "hashes": [
-                "sha256:4c83829ff83d408b5e1d4995472265411d2c414112298f2eb4b359d9e4563373"
+                "sha256:2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48",
+                "sha256:a080b744b7e345ccfcbc77954861cb05b3c63786e93f2b3875e0913d44b43f05"
             ],
             "index": "pypi",
-            "version": "==0.10.1"
+            "version": "==1.0.2"
         },
         "flask-cors": {
             "hashes": [
-                "sha256:9e45913f410867aa3d25b6fdee9adff139eabede58e253e53ccc2bfb24fba545"
+                "sha256:7ad56ee3b90d4955148fc25a2ecaa1124fc84298471e266a7fea59aeac4405a5",
+                "sha256:7e90bf225fdf163d11b84b59fb17594d0580a16b97ab4e1146b1fb2737c1cfec"
             ],
             "index": "pypi",
-            "version": "==2.0.0"
+            "version": "==3.0.7"
         },
         "itsdangerous": {
             "hashes": [
@@ -132,14 +141,6 @@
             ],
             "markers": "python_version >= '2.7'",
             "version": "==2.8.0"
-        },
-        "pyyaml": {
-            "hashes": [
-                "sha256:19bb3ac350ef878dda84a62d37c7d5c17a137386dde9c2ce7249c7a21d7f6ac9",
-                "sha256:c36c938a872e5ff494938b33b14aaa156cb439ec67548fcab3535bb78b0846e8"
-            ],
-            "index": "pypi",
-            "version": "==3.11"
         },
         "s3transfer": {
             "hashes": [
