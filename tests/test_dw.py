@@ -1,15 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from unittest.mock import patch
 
-from dw_lookup.dw import DWService
-from mock import Mock, patch
+from dw_lookup.dw import search_authors
 
-import pytest
-
-sample_query_obj = {
-    'first': 'solh',
-    'last': 'zendeh'
-}
 
 sample_db_response = [[
     'solh zendeh',
@@ -43,17 +35,9 @@ sample_processed_response = {
     }
 }
 
-def test_search_authors():
-    with DWService() as dw_service:
-        dw_service.multipleNameCursor = Mock()
-        dw_service.multipleNameCursor.execute.return_value.fetchall.return_value = sample_db_response
-        assert dw_service.search_authors(sample_query_obj) == sample_processed_response
 
-def test_process_response():
-    with DWService() as dw_service:
-        assert dw_service.process_response(sample_db_response) == sample_processed_response
-
-def test_preprocess_string():
-    with DWService() as dw_service:
-        assert dw_service.preprocess_string('Testing') == 'testing'
-        assert dw_service.preprocess_string('Testing.test') == 'testingtest'
+@patch("dw_lookup.dw.db")
+def test_search_authors(mock):
+    mock.select.return_value.fetchall.return_value = sample_db_response
+    assert search_authors(first="solh", last="zendeh") == \
+        sample_processed_response
