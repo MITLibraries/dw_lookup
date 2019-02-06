@@ -11,8 +11,7 @@ pytest-cov = "*"
 coveralls = "*"
 
 [packages]
-Flask = "==0.10.1"
-Flask-Cors = "==2.0.0"
-PyYAML = "==3.11"
+Flask = "*"
+Flask-Cors = "*"
 cx-oracle = "*"
 boto3 = "*"
