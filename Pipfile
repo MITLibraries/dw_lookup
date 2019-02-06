@@ -8,6 +8,7 @@ gunicorn = "*"
 pytest = "*"
 flake8 = "*"
 pytest-cov = "*"
+coveralls = "*"
 
 [packages]
 Flask = "==0.10.1"
