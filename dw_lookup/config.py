@@ -10,7 +10,8 @@ def configure(app):
         AUTHOR_DB_PORT=os.environ.get('AUTHOR_DB_PORT'),
         AUTHOR_DB_SID=os.environ.get('AUTHOR_DB_SID'),
         AUTHOR_DB_USER=os.environ.get('AUTHOR_DB_USER'),
-        AUTHOR_DB_PASSWORD=os.environ.get('AUTHOR_DB_PASSWORD')
+        AUTHOR_DB_PASSWORD=os.environ.get('AUTHOR_DB_PASSWORD'),
+        DW_LOOKUP_TOKEN=os.environ.get('DW_LOOKUP_TOKEN')
     )
     secret_id = os.environ.get('AWS_SECRET_ID')
     if secret_id:
