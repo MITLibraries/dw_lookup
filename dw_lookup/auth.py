@@ -1,38 +1,21 @@
-from __future__ import absolute_import
-
-from flask import abort, make_response, request
 from functools import wraps
 
-import os
-import sys
-
-server_token = os.environ.get('DW_LOOKUP_TOKEN')
-
-if (server_token is None or server_token == ''):
-    sys.exit('missing DW_LOOKUP_TOKEN in env')
+from flask import abort, request, current_app
+from werkzeug.security import safe_str_cmp
 
 
 def authenticate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        apikey = current_app.config['DW_LOOKUP_TOKEN']
+        if not apikey:
+            raise Exception("Server API key not set")
+
         client_token = request.headers.get('token') or \
-            request.args.get('token')
+            request.args.get('token', "")
 
-        if (client_token is None or client_token == ''):
-            response = make_response()
-            response.status_code = 401
-            response.headers = {
-                'X-Status-Reason': 'client_token missing from request'
-            }
-            return abort(response)
+        if safe_str_cmp(apikey, client_token):
+            return f(*args, **kwargs)
 
-        if (server_token != client_token):
-            response = make_response()
-            response.status_code = 401
-            response.headers = {
-                'X-Status-Reason': 'client_token must match server_token'
-            }
-            return abort(response)
-
-        return f(*args, **kwargs)
+        abort(401)
     return wrapper
