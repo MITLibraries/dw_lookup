@@ -1,0 +1,18 @@
+{
+    "stage": {
+        "app_function": "dw_lookup.app.app",
+        "aws_region": "us-east-1",
+        "environment_variables": {
+          "AWS_SECRET_ID": "arn:aws:secretsmanager:us-east-1:672626379771:secret:dw_lookup_stage-QTcA3Q"
+        },
+        "exclude": [".tox", ".coverage", "__pycache__", ".env", "build",
+                    "dist", ".cache", "tests", "pytest-cov*", "coveralls*",
+                    ".pytest_cache", "flake8*", "gunicorn*", "pytest*",
+                    "pyflakes*", "coverage*", ".git*", "_pytest*"],
+        "profile_name": "default",
+        "project_name": "dw-lookup",
+        "runtime": "python3.6",
+        "s3_bucket": "author-lookup-stage",
+        "slim_handler": false
+    }
+}
