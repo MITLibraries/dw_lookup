@@ -11,3 +11,8 @@ install:
   - pip install tox
 script:
   - tox -e $TOX_ENV
+before_deploy: pip install awscli
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: make stage
