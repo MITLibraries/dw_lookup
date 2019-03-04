@@ -12,7 +12,6 @@
                     ".pytest_cache", "flake8*", "gunicorn*", "pytest*",
                     "pyflakes*", "coverage*", ".git*", "_pytest*"],
         "manage_roles": false,
-        "profile_name": "default",
         "project_name": "author-lookup",
         "role_arn": "arn:aws:iam::672626379771:role/author-lookup-stage-lambda",
         "runtime": "python3.6",
