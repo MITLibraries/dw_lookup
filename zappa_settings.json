@@ -2,6 +2,8 @@
     "stage": {
         "app_function": "dw_lookup.app.app",
         "aws_region": "us-east-1",
+        "certificate_arn": "arn:aws:acm:us-east-1:672626379771:certificate/e22ccada-90c8-4ff1-b5b5-18863feccaff",
+        "domain": "author-lookup-stage.mitlib.net",
         "environment_variables": {
           "AWS_SECRET_ID": "arn:aws:secretsmanager:us-east-1:672626379771:secret:author-lookup-stage-f268j4"
         },
