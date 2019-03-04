@@ -21,9 +21,11 @@ dist: deps ## Create deploy package locally
 
 stage: deps ## Deploy staging build
 	pipenv run zappa update stage
+	pipenv run zappa certify --yes stage
 
 prod: deps ## Deploy production build
 	pipenv run zappa update prod
+	pipenv run zappa certify --yes prod
 
 clean: ## Remove build artifacts
 	find . -name "*.pyc" -print0 | xargs -0 rm -f
