@@ -24,5 +24,6 @@ jobs:
       install: pipenv sync
       script: skip
       deploy:
+        skip_cleanup: true
         provider: script
         script: make stage
