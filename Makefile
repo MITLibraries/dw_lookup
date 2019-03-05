@@ -16,8 +16,8 @@ lib/libclntsh.so:
 
 deps: lib/libaio.so.1 lib/libclntsh.so
 
-dist: deps ## Create deploy package locally
-	pipenv run zappa package
+dist: deps ## Create stage deploy package locally
+	pipenv run zappa package stage
 
 stage: deps ## Deploy staging build
 	pipenv run zappa update stage
