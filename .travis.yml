@@ -16,8 +16,12 @@ jobs:
       install: pipenv install
       script: make dist
     - stage: deploy
-      before_install: pip install pipenv awscli
-      install: pipenv install
+      before_install:
+        - pip install pipenv awscli
+        - make deps
+        - pipenv clean
+        - pip install pipenv
+      install: pipenv sync
       script: skip
       deploy:
         provider: script
