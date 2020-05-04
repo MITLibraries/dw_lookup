@@ -4,7 +4,6 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [dev-packages]
-gunicorn = "*"
 pytest = "*"
 flake8 = "*"
 pytest-cov = "*"
@@ -16,4 +15,4 @@ Flask-Cors = "*"
 cx-oracle = "*"
 boto3 = "*"
 werkzeug = "*"
-zappa = "*"
+gunicorn = "*"
