@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  web:
+    image: "author_lookup"
+    build: .
+    ports:
+      - "8000:8000"
+    network_mode: "${AUTHOR_NETWORK_MODE:-bridge}"
+    environment:
+      DW_LOOKUP_TOKEN: "${DW_LOOKUP_TOKEN:-authortoken}"
+      AUTHOR_DB_USER: "${AUTHOR_DB_USER}"
+      AUTHOR_DB_PASSWORD: "${AUTHOR_DB_PASSWORD}"
+      AUTHOR_DB_HOST: "${AUTHOR_DB_HOST}"
+      AUTHOR_DB_PORT: 1521
+      AUTHOR_DB_SID: "${AUTHOR_DB_SID}"
