@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from dw_lookup.auth import authenticate
 from dw_lookup.config import configure
@@ -8,6 +10,8 @@ from dw_lookup.dw import db, get_orcid, get_author, search_authors
 
 app = Flask(__name__)
 configure(app)
+sentry_sdk.init(dsn=app.config['SENTRY_DSN'],
+                 integrations=[FlaskIntegration()])
 db.configure(app.config['AUTHOR_DB_HOST'], app.config['AUTHOR_DB_PORT'],
              app.config['AUTHOR_DB_SID'], app.config['AUTHOR_DB_USER'],
              app.config['AUTHOR_DB_PASSWORD'])
