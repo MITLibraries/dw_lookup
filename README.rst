@@ -49,4 +49,5 @@ The app needs a few environment variables to work. In staging and production the
 +------------------------+-----------------------------------+
 | ``DW_LOOKUP_TOKEN``    | API key needed to authenticate    |
 +------------------------+-----------------------------------+
-
+| ``SENTRY_DSN``         | Sentry DSN (production only)      |
++------------------------+-----------------------------------+

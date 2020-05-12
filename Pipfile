@@ -16,3 +16,4 @@ cx-oracle = "*"
 boto3 = "*"
 werkzeug = "*"
 gunicorn = "*"
+sentry-sdk = {extras = ["flask"],version = "*"}
