@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import os
 import re
 
@@ -10,28 +11,17 @@ non_ascii_regex = re.compile(r'[^\x00-\x7F]')
 
 
 class _DB:
-    _conn = None
-    _cursor = None
-
     def configure(self, host, port, sid, user, password):
-        self.user = user
-        self.password = password
-        self.dsn = cx_Oracle.makedsn(host, port, sid)
+        dsn = cx_Oracle.makedsn(host, port, sid)
+        self.pool = cx_Oracle.SessionPool(user, password, dsn)
 
-    @property
-    def conn(self):
-        self._conn = self._conn or cx_Oracle.connect(self.user,
-                                                     self.password,
-                                                     self.dsn)
-        return self._conn
-
-    @property
+    @contextmanager
     def cursor(self):
-        self._cursor = self._cursor or self.conn.cursor()
-        return self._cursor
-
-    def select(self, sql, **kwargs):
-        return self.cursor.execute(sql, **kwargs)
+        conn = self.pool.acquire()
+        try:
+            yield conn.cursor()
+        finally:
+            self.pool.release(conn)
 
 
 db = _DB()
@@ -42,7 +32,8 @@ def get_orcid(mit_id):
     if (mit_regex.search(mit_id) is None):
         return format_response(res)
 
-    res = db.select(SQL_ORCID_BY_ID, mit_id=mit_id).fetchone()
+    with db.cursor() as c:
+        res = c.execute(SQL_ORCID_BY_ID, mit_id=mit_id).fetchone()
     data = {'results': {'orcid': ''}}
 
     if res is not None:
@@ -55,7 +46,8 @@ def get_author(mit_id):
     if (mit_regex.search(mit_id) is None):
         return format_response(res)
 
-    res = db.select(SQL_AUTHOR_BY_ID, mit_id=mit_id).fetchall()
+    with db.cursor() as c:
+        res = c.execute(SQL_AUTHOR_BY_ID, mit_id=mit_id).fetchall()
 
     return format_response(res)
 
@@ -74,8 +66,9 @@ def search_authors(first="", last=""):
     else:
         query = SQL_MULTIPLE_NAME
 
-    res = db.select(query, first_name=first_name, last_name=last_name)\
-            .fetchall()
+    with db.cursor() as c:
+        res = c.execute(query, first_name=first_name, last_name=last_name)\
+                .fetchall()
 
     return format_response(res)
 
